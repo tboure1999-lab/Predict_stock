@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Predict Stock - UI</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div style="max-width:800px;margin:40px auto;font-family:Arial,Helvetica,sans-serif;">
+    <h1>Predict Stock — UI minimale</h1>
+    <p id="status">Chargement de l'API...</p>
+
+    <div style="margin-top:20px;">
+      <label for="ticker">Ticker:</label>
+      <input id="ticker" value="AAPL" />
+      <button id="predictBtn">Prédire</button>
+    </div>
+
+    <pre id="output" style="background:#f5f5f5;padding:12px;margin-top:20px;white-space:pre-wrap;">Résultat ici</pre>
+  </div>
+
+  <script>
+    async function checkApi() {
+      try {
+        const res = await fetch('/');
+        const j = await res.json();
+        document.getElementById('status').textContent = `API: ${j.message} (v${j.version})`;
+      } catch (e) {
+        document.getElementById('status').textContent = 'Impossible de joindre l\'API: ' + e;
+      }
+    }
+
+    document.getElementById('predictBtn').addEventListener('click', async () => {
+      const ticker = document.getElementById('ticker').value || 'AAPL';
+      document.getElementById('output').textContent = 'En cours...';
+      try {
+        const res = await fetch('/api/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker })
+        });
+        const j = await res.json();
+        document.getElementById('output').textContent = JSON.stringify(j, null, 2);
+      } catch (e) {
+        document.getElementById('output').textContent = 'Erreur: ' + e;
+      }
+    });
+
+    checkApi();
+  </script>
+</body>
+</html>
